@@ -1,1 +1,114 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Sep  6 12:50:20 2024
 
+@author: catal
+"""
+
+import math
+import numpy as np
+
+wheel = {
+    'radius': 0.3,
+    'mass': 1.0 }
+
+speed_reducer = {
+    'type': 'reverted',
+    'diam_pinion': 0.04,
+    'diam_gear': 0.07,
+    'mass': 1.5}
+
+motor = {
+    'torque_stall': 170,
+    'torque_noload': 0,
+    'speed_noload': 3.80,
+    'mass': 5.0}
+
+chassis = {'mass': 659}
+science_payload = {'mass': 75}
+power_subsys = {'mass': 90}
+
+planet = {'g': 3.72}
+
+wheel_assembly = {
+    'wheel': wheel,
+    'speed_reducer': speed_reducer,
+    'motor': motor}
+
+rover = {
+    'wheel_assembly': wheel_assembly,
+    'chassis': chassis,
+    'science_payload': science_payload,
+    'power_subsys': power_subsys}
+
+def get_mass(rover):
+
+    # Check that the input is a dict
+    if type(rover) != dict:
+        raise Exception('Argument must be a dict')
+
+    m = 0
+    m += (rover['wheel_assembly']['wheel']['mass']) * 6
+    m += (rover['wheel_assembly']['motor']['mass']) * 6
+    m += (rover['wheel_assembly']['speed_reducer']['mass']) * 6
+    m += rover['chassis']['mass']
+    m += rover['science_payload']['mass']
+    m += rover['power_subsys']['mass']
+
+    return m
+
+
+
+def get_gear_ratio(speed_reducer):
+
+    # Check that the input is a dict
+    if type(speed_reducer) != dict:
+        raise Exception('Argument must be a dict')
+
+    # Check the type of the dict, not case sensitive
+    if speed_reducer['type'].lower() != 'reverted':
+        raise Exception('The type of speed reducer is invalid.')
+
+    # Main function
+    diam1 = speed_reducer['diam_pinion']
+    diam2 = speed_reducer['diam_gear']
+
+    Ng = (diam2/diam1)**2
+
+    return Ng
+
+
+
+
+
+def tau_dcmotor(omega, motor):
+
+    # Exceptions
+    if not isinstance(omega, np.ndarray):
+        raise Exception('Please input a scalar or vector. No matrices.')
+
+    if type(motor) != dict:
+        raise Exception('Motor input must be a dict')
+
+    for i in omega:
+        try:
+            n = float(i)
+        except:
+            raise Exception('Please input a scalar or vector. No matrices.')
+
+    T_s = motor['torque_stall']
+    T_n = motor['torque_noload']
+    w_n = motor['speed_noload']
+    w = omega
+    tau = []
+   
+    for i in w:
+        if i > w_n:
+            tau += [0]
+        elif i < 0:
+            tau += [T_s]
+        else:
+            tau += [T_s - ((T_s - T_n)/(w_n)) * i]
+    return tau
+
+tau_dcmotor(10, motor)
