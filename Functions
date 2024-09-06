@@ -8,6 +8,7 @@ Created on Fri Sep  6 12:50:20 2024
 import math
 import numpy as np
 
+print("hello")
 wheel = {
     'radius': 0.3,
     'mass': 1.0 }
