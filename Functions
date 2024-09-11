@@ -11,6 +11,8 @@
 import math
 import numpy as np
 
+######################## Dictionaries ########################
+
 wheel = {
     'radius': 0.3,
     'mass': 1.0 }
@@ -43,6 +45,9 @@ rover = {
     'chassis': chassis,
     'science_payload': science_payload,
     'power_subsys': power_subsys}
+
+
+######################## Functions ########################
 
 def get_mass(rover):
 
