@@ -12,7 +12,7 @@ from subfunctions import *
 import numpy as np
 
 Crr_a = np.linspace(0.01, 0.4, 25)
-v_max = []
+vmax = []
 
 def bisection(Crr):
     lb = 0
@@ -32,8 +32,8 @@ def bisection(Crr):
     if fl * fu > 0:    
         done = True
     elif fl * fu == 0:  
+        err = 0
         done = True
-        err = 0.0
         
         if abs(fl) <= abs(fu):  
             root = lb
@@ -50,9 +50,9 @@ def bisection(Crr):
         if fr is np.nan:
             done = True
             
-        if fl * fr == 0.0:    
+        if fl * fr == 0:    
             done = True
-            err = 0.0
+            err = 0
             root = xr
         elif fl * fr > 0:   
             lb = xr
@@ -62,15 +62,15 @@ def bisection(Crr):
         err = 100 * abs((ub - lb) / xr)     
         
         if err <= err_max:      
-            done = True
             root = xr
+            done = True
             break
                   
         if numIter >= iter_max:     
-            done = True
             root = xr
+            done = True
             break  
-                   
+    
     speed_reducer = rover['wheel_assembly']['speed_reducer']
     gear_ratio = get_gear_ratio(speed_reducer)
     root = root * rover['wheel_assembly']['wheel']['radius'] / gear_ratio 
@@ -80,10 +80,11 @@ def bisection(Crr):
 
 for i in range(len(Crr_a)):
     v_i = bisection(Crr_a[i])
-    v_max.append(v_i)
+    vmax.append(v_i)
     
     
-plt.plot(Crr_a, v_max)
-plt.xlabel('Crr Array (unitless)') 
-plt.ylabel('Max Velocity (m/s)')   
+plt.plot(Crr_a, vmax)
 plt.title("Max Rover Speed vs Coefficient of Rolling Resistance")
+plt.ylabel('Max Velocity (m/s)')   
+plt.xlabel('Crr Array (unitless)') 
+
