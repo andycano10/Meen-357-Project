@@ -66,7 +66,7 @@ for i in range(len(slope_array_deg)):
     v_max.append(velocity)
 
 plt.plot(slope_array_deg, v_max)
-plt.xlabel('Slope of terrain (deg)')
-plt.ylabel('Maximum velocity (m/s)')
 plt.title('Max rover speed vs Terrain slope')
+plt.ylabel('Maximum Velocity (m/s)')
+plt.xlabel('Slope of Terrain (deg)')
 plt.show()
