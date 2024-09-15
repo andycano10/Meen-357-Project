@@ -54,7 +54,7 @@ def get_mass(rover):
     # Check that the input is a dict
     if type(rover) != dict:
         raise Exception('Argument must be a dict')
-
+# initialize
     m = 0
     m += (rover['wheel_assembly']['wheel']['mass']) * 6
     m += (rover['wheel_assembly']['motor']['mass']) * 6
