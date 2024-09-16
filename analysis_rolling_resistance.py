@@ -83,7 +83,7 @@ for i in range(len(Crr_array)):
     v_max.append(v_i)
     
     
-plt.plot(Crr_a, vmax)
+plt.plot(Crr_array, v_max)
 plt.title("Max Rover Speed vs Coefficient of Rolling Resistance")
 plt.ylabel('Max Velocity (m/s)')   
 plt.xlabel('Crr Array (unitless)') 
