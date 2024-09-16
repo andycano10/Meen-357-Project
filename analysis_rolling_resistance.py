@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 from subfunctions import *
 import numpy as np
 
-Crr_a = np.linspace(0.01, 0.4, 25)
-vmax = []
+Crr_array = np.linspace(0.01, 0.4, 25)
+v_max = []
 
 def bisection(Crr):
     lb = 0
@@ -78,9 +78,9 @@ def bisection(Crr):
     return root
 
 
-for i in range(len(Crr_a)):
-    v_i = bisection(Crr_a[i])
-    vmax.append(v_i)
+for i in range(len(Crr_array)):
+    v_i = bisection(Crr_array[i])
+    v_max.append(v_i)
     
     
 plt.plot(Crr_a, vmax)
