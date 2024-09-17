@@ -7,7 +7,7 @@ Created on Wed Sep 11 12:49:19 2024
 import numpy as np
 import matplotlib.pyplot as plt
 
-from functions import *
+from subfunctions import *
 
 #GRAPH 1: motor shaft speed [rad/s] vs. motor shaft torque [Nm] (use torque on the x-axis)
 #linespace for y
@@ -47,9 +47,10 @@ P = tau * omega
 # plt.ylim(0,200)
 # plt.tight_layout()
 # plt.show()
-fig, (ax1, ax2, ax3) = plt.subplots(3)
+fig, (ax1, ax2, ax3) = plt.subplots(3, figsize=(6,8))
 fig.suptitle('test')
 ax1.plot(tau_dcmotor(omega, motor), omega)
 ax2.plot(tau_dcmotor(omega, motor),P)
 ax3.plot(w, P)
 plt.tight_layout()
+plt.show()
