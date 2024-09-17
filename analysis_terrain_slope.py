@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 crr = 0.2 # coefficient of resistance
 slope_array_deg = np.linspace(-10, 35, 25) # gives 25 degree angles between -10 and 35
 v_max = [] # list of max velocities at different angles
+iter_num_list = [] # list of number of iterations
+err_est_list = [] # list of error estimate for root
+exitFlag_list = [] # list of exit flags
 
 def bisection(x): #find roots for F_net (F=0, v=max)
 
@@ -39,7 +42,7 @@ def bisection(x): #find roots for F_net (F=0, v=max)
             if fun_l * fun_xr < 0:
                  ub = xr
             else:
-                 lb - xr
+                 lb = xr
 
             err_est = abs((lb - ub) / (lb + ub))
 
@@ -61,11 +64,16 @@ def bisection(x): #find roots for F_net (F=0, v=max)
     
     return velocity, err_est, iter_num, exitFlag
 
-for i in range(len(slope_array_deg)):
-    velocity = bisection(slope_array_deg[i])
-    v_max.append(velocity)
 
-plt.plot(slope_array_deg, v_max)
+
+for angle in range(len(slope_array_deg)):
+    velocity, err_est, iter_num, exitFlag = bisection(slope_array_deg[angle])
+    v_max.append(velocity)
+    iter_num_list.append(iter_num)
+    err_est_list.append(err_est)
+    exitFlag_list.append(exitFlag)
+
+plt.plot(slope_array_deg, v_max, color='r')
 plt.title('Max rover speed vs Terrain slope')
 plt.ylabel('Maximum Velocity (m/s)')
 plt.xlabel('Slope of Terrain (deg)')
