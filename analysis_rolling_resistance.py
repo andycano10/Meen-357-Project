@@ -36,6 +36,9 @@ def bisection(Crr): #find roots for F_net (F=0, v=max)
         exitFlag = -1 # no root
         velocity = root
         return velocity, err_est, iter_num, exitFlag
+    
+    elif fun_l * fun_u == 0: 
+        done = True  
         
     # loop to find root
     while not done:
@@ -43,6 +46,9 @@ def bisection(Crr): #find roots for F_net (F=0, v=max)
             xr = (lb + ub) / 2
             fun_xr = sb.F_net(np.array([xr]), np.array([0]), sb.rover, sb.planet, Crr)
             
+            if fun_l * fun_xr == 0.0:    
+                done = True
+
             # sub in xr
             if fun_l * fun_xr < 0:
                  ub = xr
