@@ -51,12 +51,13 @@ def get_mass(rover):
         raise Exception('Argument must be a dict')
 
     m = 0
-    m += (rover['wheel_assembly']['wheel']['mass']) * 6
     m += (rover['wheel_assembly']['motor']['mass']) * 6
+    m += (rover['wheel_assembly']['wheel']['mass']) * 6
     m += (rover['wheel_assembly']['speed_reducer']['mass']) * 6
     m += rover['chassis']['mass']
-    m += rover['science_payload']['mass']
     m += rover['power_subsys']['mass']
+    m += rover['science_payload']['mass']
+
 
     return m
 
@@ -65,10 +66,11 @@ def get_gear_ratio(speed_reducer):
     # Check that the input is a dict
     if type(speed_reducer) != dict:
         raise Exception('Argument must be a dict')
-
+        
     # Check the type of the dict, not case sensitive
     if speed_reducer['type'].lower() != 'reverted':
         raise Exception('The type of speed reducer is invalid.')
+
 
     # Main function
     diam1 = speed_reducer['diam_pinion']
@@ -89,9 +91,9 @@ def tau_dcmotor(omega, motor):
     if type(motor) != dict:
         raise Exception('Motor input must be a dict')
 
-    for i in omega:
+    for w in omega:
         try:
-            n = float(i)
+            n = float(w)
         except:
             raise Exception('Please input a scalar or vector. No matrices.')
 
@@ -117,12 +119,13 @@ def F_gravity(terrain_angle, rover, planet):
   # Exceptions
   if not isinstance(terrain_angle, np.ndarray) and not np.isscalar(terrain_angle):
       raise Exception('Terrain angle input must be a vector or a scalar')
-
+      
+  if not isinstance(rover, dict) or not isinstance(planet, dict):
+      raise Exception('Inputs for rover and planet must be dicts')
+      
   if not (-75 <= np.min(terrain_angle) <= 75) or not (-75 <= np.max(terrain_angle) <= 75):
       raise Exception('Inputs for terrain angles must be between -75 and +75 degrees')
 
-  if not isinstance(rover, dict) or not isinstance(planet, dict):
-      raise Exception('Inputs for rover and planet must be dicts')
 
   rov_mass = get_mass(rover)
 
