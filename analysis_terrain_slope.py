@@ -13,8 +13,8 @@ def bisection(x): #find roots for F_net (F=0, v=max)
 
     lb = 0
     ub = 3.8 # m/s
-    err_max = 1e-3
-    iter_max = 1000
+    err_max = 1e-6
+    iter_max = 500
 
     # y-values for lower and upper bound
     fun_l = sb.F_net(np.array([lb]), np.array([x]), sb.rover, sb.planet, crr)

@@ -8,11 +8,6 @@
 # Assignment:   THE ASSIGNMENT NUMBER (e.g. Lab 1b-2)
 # Date:         DAY MONTH 2024
 
-import math
-import numpy as np
-
-######################## Dictionaries ########################
-
 wheel = {
     'radius': 0.3,
     'mass': 1.0 }
@@ -46,15 +41,15 @@ rover = {
     'science_payload': science_payload,
     'power_subsys': power_subsys}
 
-
-######################## Functions ########################
+import math
+import numpy as np
 
 def get_mass(rover):
 
     # Check that the input is a dict
     if type(rover) != dict:
         raise Exception('Argument must be a dict')
-# initialize
+
     m = 0
     m += (rover['wheel_assembly']['wheel']['mass']) * 6
     m += (rover['wheel_assembly']['motor']['mass']) * 6
@@ -64,8 +59,6 @@ def get_mass(rover):
     m += rover['power_subsys']['mass']
 
     return m
-
-
 
 def get_gear_ratio(speed_reducer):
 
@@ -84,8 +77,6 @@ def get_gear_ratio(speed_reducer):
     Ng = (diam2/diam1)**2
 
     return Ng
-
-
 
 
 
@@ -109,7 +100,7 @@ def tau_dcmotor(omega, motor):
     w_n = motor['speed_noload']
     w = omega
     tau = []
-   
+    
     for i in w:
         if i > w_n:
             tau += [0]
@@ -118,6 +109,8 @@ def tau_dcmotor(omega, motor):
         else:
             tau += [T_s - ((T_s - T_n)/(w_n)) * i]
     return tau
+
+
 
 def F_gravity(terrain_angle, rover, planet):
 
@@ -148,15 +141,15 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
             n = float(i)
         except:
             raise Exception('Please input a scalar or vector. No matrices.')
-           
+            
     for i in terrain_angle:
         try:
             n = float(i)
         except:
             raise Exception('Please input a scalar or vector. No matrices.')
-           
+            
     if len(omega) != len(terrain_angle):
-        raise Exception("Both vectors should be equivalent sizes")
+        raise Exception("Both vectors should be equal lengths")
     if not (-75 <= np.min(terrain_angle) <= 75) or not (-75 <= np.max(terrain_angle) <= 75):
         raise Exception('Inputs for terrain angles must be between -75 and +75 degrees')
     if Crr <= 0:
@@ -169,7 +162,7 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
     Frr = []
     j = 0
     Ng = get_gear_ratio(rover['wheel_assembly']['speed_reducer'])
-   
+    
     for i in terrain_angle:
         w = omega[j] / Ng
         F_n = rov_mass * ga * np.cos(np.radians(i)) * Crr
