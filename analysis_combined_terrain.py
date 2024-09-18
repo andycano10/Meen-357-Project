@@ -17,7 +17,7 @@ Crr_array = np.linspace(0.01, 0.4, 25)
 slope_array_deg = np.linspace(-10, 35, 25)
 CRR, SLOPE = np.meshgrid(Crr_array, slope_array_deg)
 VMAX = np.zeros(np.shape(CRR), dtype = float)
-num = np.shape(CRR)[0]
+N = np.shape(CRR)[0]
 
 def bisection(slope_array_deg, Crr, rover, planet):
     lb = 0
@@ -84,8 +84,8 @@ def bisection(slope_array_deg, Crr, rover, planet):
     return root
 
 
-for i in range(num):
-    for j in range(num):
+for i in range(N):
+    for j in range(N):
         Crr_sample = float(CRR[i,j])
         slope_sample = float(SLOPE[i,j])
         VMAX[i,j] = bisection(slope_sample, Crr_sample, rover, planet)
