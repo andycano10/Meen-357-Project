@@ -88,10 +88,15 @@ for i in range(N):
 
 
 figure = plt.figure()
-ax = Axes3D(figure, elev = 15, azim = 80) #where N1 and N2 will control the 3D view
+ax = Axes3D(figure, elev = 15, azim = 45) #where N1 and N2 will control the 3D view
 figure.add_axes(ax)
 ax.plot_surface(CRR, SLOPE, VMAX)
 ax.set_xlabel("Crr_array (unitless)")
 ax.set_ylabel("slope_array_deg (deg)")
 ax.set_zlabel("v_max (m/s)")
 ax.set_title("Speed of Rover vs Rolling Resistance and Terrain Slope")
+
+# Rotate the existing tick labels on the Crr_array axis for readability
+for label in ax.get_xticklabels():
+    label.set_rotation(-15)
+plt.show()
