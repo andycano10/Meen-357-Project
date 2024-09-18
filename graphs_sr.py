@@ -58,8 +58,3 @@ ax3.set_xlabel('Reducer Speed [rad/s]')
 ax3.set_ylabel('Reducer Power [W]')
 
 plt.tight_layout()
-plt.show()
-
-plt.tight_layout()
-
-

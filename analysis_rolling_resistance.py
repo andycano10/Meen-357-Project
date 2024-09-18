@@ -14,7 +14,7 @@ import numpy as np
 Crr_array = np.linspace(0.01, 0.4, 25)
 v_max = []
 
-def bisection(Crr): #find roots for F_net (F=0, v=max)
+def bisection(Crr):
 
     lb = 0
     ub = 3.8 # m/s
@@ -84,5 +84,3 @@ plt.plot(Crr_array, v_max)
 plt.title("Max Rover Speed vs Coefficient of Rolling Resistance")
 plt.ylabel('Max Velocity (m/s)')   
 plt.xlabel('Crr Array (unitless)') 
-plt.show()
-
