@@ -19,37 +19,19 @@ for i in range(len(w_values)):
 omega = np.array(w)
 
 
-# plt.figure()
-# plt.subplot(3,1,1)
-# plt.plot(tau_dcmotor(omega, motor), w_values)
-# plt.xlabel("Motor Shaft Torque (Nm)")
-# plt.ylabel("motor shaft \n speed [rad/s]")
-# plt.title("Sped vs Torque")
-
-
-
 #GRAPH 2:motor power [W] vs. motor shaft torque [Nm] (use torque on the x-axis)
 tau = tau_dcmotor(omega, motor)
-# t = np.array(tau)
+
 P = tau * omega
 
-# plt.subplot(3,1,2)
-# plt.plot(tau_dcmotor(omega, motor), P)
-# plt.xlabel("Motor Shaft Torque (Nm)")
-# plt.ylabel("Motor Power [W]")
-# plt.ylim(0,200)
 
 # # #GRAPH 3: motor power [W] vs. motor shaft speed [rad/s] (use speed on the x-axis)
-# plt.subplot(3,1,3)
-# plt.plot(w, P)
-# plt.xlabel("motor shaft speed [rad/s]")
-# plt.ylabel("motor power [W]")
-# plt.ylim(0,200)
-# plt.tight_layout()
-# plt.show()
 fig, (ax1, ax2, ax3) = plt.subplots(3, figsize=(6,8))
-fig.suptitle('test')
+fig.suptitle('Graphs for the Motor')
 ax1.plot(tau_dcmotor(omega, motor), omega)
+ax1.ylabel('Speed Reducer')
+ax1.xlabel('Motor Torque')
+ax1.Title('Speed vs. Torque')
 ax2.plot(tau_dcmotor(omega, motor),P)
 ax3.plot(w, P)
 plt.tight_layout()
