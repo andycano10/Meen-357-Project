@@ -7,7 +7,7 @@ Created on Fri Sep 13 20:30:27 2024
 
 import numpy as np
 import matplotlib.pyplot as plt
-from functions import *
+from subfunctions import *
 
 #plot 1: w_out (omega/Ng) speed  vs. t_out =t/Ng
 r = get_gear_ratio(speed_reducer)
