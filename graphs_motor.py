@@ -40,3 +40,4 @@ ax3.set_xlabel('Motor Shaft Speed [rad/s]')
 ax3.set_ylabel('Motor Power [W]')
 
 plt.tight_layout()
+plt.show()
