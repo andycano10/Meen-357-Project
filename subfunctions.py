@@ -1,231 +1,377 @@
-# -*- coding: utf-8 -*-
-#By submitting this assignment, I agree to the following:
-#   "Aggies do not lie, cheat, or steal, or tolerate those who do."
-#   "I have not given or received any unauthorized aid on this assignment."
+"""###########################################################################
+#   This file contains subfunctions for Phase 1 of the TAMU MEEN 357 project
 #
-# Name:        Jackson Walton, Andy Cano-Avila, Catalina Fossati
-# Section:      505
-# Assignment:   THE ASSIGNMENT NUMBER (e.g. Lab 1b-2)
-# Date:         DAY MONTH 2024
-
-wheel = {
-    'radius': 0.3,
-    'mass': 1.0 }
-
-speed_reducer = {
-    'type': 'reverted',
-    'diam_pinion': 0.04,
-    'diam_gear': 0.07,
-    'mass': 1.5}
-
-motor = {
-    'torque_stall': 170,
-    'torque_noload': 0,
-    'speed_noload': 3.80,
-    'mass': 5.0}
-
-chassis = {'mass': 659}
-science_payload = {'mass': 75}
-power_subsys = {'mass': 90}
-
-planet = {'g': 3.72}
-
-wheel_assembly = {
-    'wheel': wheel,
-    'speed_reducer': speed_reducer,
-    'motor': motor}
-
-rover = {
-    'wheel_assembly': wheel_assembly,
-    'chassis': chassis,
-    'science_payload': science_payload,
-    'power_subsys': power_subsys}
+#   Created by: MEEN 357 Instructional Team
+#   Last Modified: 4 October 2023
+###########################################################################"""
 
 import math
 import numpy as np
 
 def get_mass(rover):
-
+    """
+    Inputs:  rover:  dict      Data structure containing rover parameters
+    
+    Outputs:     m:  scalar    Rover mass [kg].
+    """
+    
     # Check that the input is a dict
     if type(rover) != dict:
-        raise Exception('Argument must be a dict')
-
-    m = 0
-    m += (rover['wheel_assembly']['motor']['mass']) * 6
-    m += (rover['wheel_assembly']['wheel']['mass']) * 6
-    m += (rover['wheel_assembly']['speed_reducer']['mass']) * 6
-    m += rover['chassis']['mass']
-    m += rover['power_subsys']['mass']
-    m += rover['science_payload']['mass']
-
-
+        raise Exception('Input must be a dict')
+    
+    # add up mass of chassis, power subsystem, science payload, 
+    # and components from all six wheel assemblies
+    m = rover['chassis']['mass'] \
+        + rover['power_subsys']['mass'] \
+        + rover['science_payload']['mass'] \
+        + 6*rover['wheel_assembly']['motor']['mass'] \
+        + 6*rover['wheel_assembly']['speed_reducer']['mass'] \
+        + 6*rover['wheel_assembly']['wheel']['mass'] \
+    
     return m
 
-def get_gear_ratio(speed_reducer):
 
+def get_gear_ratio(speed_reducer):
+    """
+    Inputs:  speed_reducer:  dict      Data dictionary specifying speed
+                                        reducer parameters
+    Outputs:            Ng:  scalar    Speed ratio from input pinion shaft
+                                        to output gear shaft. Unitless.
+    """
+    
     # Check that the input is a dict
     if type(speed_reducer) != dict:
-        raise Exception('Argument must be a dict')
-        
-    # Check the type of the dict, not case sensitive
+        raise Exception('Input must be a dict')
+    
+    # Check 'type' field (not case sensitive)
     if speed_reducer['type'].lower() != 'reverted':
-        raise Exception('The type of speed reducer is invalid.')
-
-
-    # Main function
-    diam1 = speed_reducer['diam_pinion']
-    diam2 = speed_reducer['diam_gear']
-
-    Ng = (diam2/diam1)**2
-
+        raise Exception('The speed reducer type is not recognized.')
+    
+    # Main code
+    d1 = speed_reducer['diam_pinion']
+    d2 = speed_reducer['diam_gear']
+    
+    Ng = (d2/d1)**2
+    
     return Ng
 
 
-
 def tau_dcmotor(omega, motor):
-
-    # Exceptions
-    if not isinstance(omega, np.ndarray):
-        raise Exception('Please input a scalar or vector. No matrices.')
-
-    if type(motor) != dict:
-        raise Exception('Motor input must be a dict')
-
-    for w in omega:
-        try:
-            n = float(w)
-        except:
-            raise Exception('Please input a scalar or vector. No matrices.')
-
-    T_s = motor['torque_stall']
-    T_n = motor['torque_noload']
-    w_n = motor['speed_noload']
-    w = omega
-    tau = []
+    """
+    Inputs:  omega:  numpy array      Motor shaft speed [rad/s]
+             motor:  dict             Data dictionary specifying motor parameters
+    Outputs:   tau:  numpy array      Torque at motor shaft [Nm].  Return argument
+                                      is same size as first input argument.
+    """
     
-    for i in w:
-        if i > w_n:
-            tau += [0]
-        elif i < 0:
-            tau += [T_s]
-        else:
-            tau += [T_s - ((T_s - T_n)/(w_n)) * i]
+    # Check that the first input is a scalar or a vector
+    if (type(omega) != int) and (type(omega) != float) and (not isinstance(omega, np.ndarray)):
+        raise Exception('First input must be a scalar or a vector. If input is a vector, it should be defined as a numpy array.')
+    elif not isinstance(omega, np.ndarray):
+        omega = np.array([omega],dtype=float) # make the scalar a numpy array
+    elif len(np.shape(omega)) != 1:
+        raise Exception('First input must be a scalar or a vector. Matrices are not allowed.')
+
+    # Check that the second input is a dict
+    if type(motor) != dict:
+        raise Exception('Second input must be a dict')
+        
+    # Main code
+    tau_s    = motor['torque_stall']
+    tau_nl   = motor['torque_noload']
+    omega_nl = motor['speed_noload']
+    
+    # initialize
+    tau = np.zeros(len(omega),dtype = float)
+    for ii in range(len(omega)):
+        if omega[ii] >= 0 and omega[ii] <= omega_nl:
+            tau[ii] = tau_s - (tau_s-tau_nl)/omega_nl *omega[ii]
+        elif omega[ii] < 0:
+            tau[ii] = tau_s
+        elif omega[ii] > omega_nl:
+            tau[ii] = 0
+        
     return tau
-
-
-
-def F_gravity(terrain_angle, rover, planet):
-
-  # Exceptions
-  if not isinstance(terrain_angle, np.ndarray) and not np.isscalar(terrain_angle):
-      raise Exception('Terrain angle input must be a vector or a scalar')
-      
-  if not isinstance(rover, dict) or not isinstance(planet, dict):
-      raise Exception('Inputs for rover and planet must be dicts')
-      
-  if not (-75 <= np.min(terrain_angle) <= 75) or not (-75 <= np.max(terrain_angle) <= 75):
-      raise Exception('Inputs for terrain angles must be between -75 and +75 degrees')
-
-
-  rov_mass = get_mass(rover)
-
-  ga = planet['g']
-
-  Fgt = -1*rov_mass * ga * np.sin(np.radians(terrain_angle))
-
-  return Fgt
-
+    
+    
 
 
 def F_rolling(omega, terrain_angle, rover, planet, Crr):
-
-    for i in omega:
-        try:
-            n = float(i)
-        except:
-            raise Exception('Please input a scalar or vector. No matrices.')
-            
-    for i in terrain_angle:
-        try:
-            n = float(i)
-        except:
-            raise Exception('Please input a scalar or vector. No matrices.')
-            
+    """
+    Inputs:           omega:  numpy array     Motor shaft speed [rad/s]
+              terrain_angle:  numpy array     Array of terrain angles [deg]
+                      rover:  dict            Data structure specifying rover 
+                                              parameters
+                    planet:  dict            Data dictionary specifying planetary 
+                                              parameters
+                        Crr:  scalar          Value of rolling resistance coefficient
+                                              [-]
+    
+    Outputs:           Frr:  numpy array     Array of forces [N]
+    """
+    
+    # Check that the first input is a scalar or a vector
+    if (type(omega) != int) and (type(omega) != float) and (not isinstance(omega, np.ndarray)):
+        raise Exception('First input must be a scalar or a vector. If input is a vector, it should be defined as a numpy array.')
+    elif not isinstance(omega, np.ndarray):
+        omega = np.array([omega],dtype=float) # make the scalar a numpy array
+    elif len(np.shape(omega)) != 1:
+        raise Exception('First input must be a scalar or a vector. Matrices are not allowed.')
+        
+    # Check that the second input is a scalar or a vector
+    if (type(terrain_angle) != int) and (type(terrain_angle) != float) and (not isinstance(terrain_angle, np.ndarray)):
+        raise Exception('Second input must be a scalar or a vector. If input is a vector, it should be defined as a numpy array.')
+    elif not isinstance(terrain_angle, np.ndarray):
+        terrain_angle = np.array([terrain_angle],dtype=float) # make the scalar a numpy array
+    elif len(np.shape(terrain_angle)) != 1:
+        raise Exception('Second input must be a scalar or a vector. Matrices are not allowed.')
+        
+    # Check that the first two inputs are of the same size
     if len(omega) != len(terrain_angle):
-        raise Exception("Both vectors should be equal lengths")
-    if not (-75 <= np.min(terrain_angle) <= 75) or not (-75 <= np.max(terrain_angle) <= 75):
-        raise Exception('Inputs for terrain angles must be between -75 and +75 degrees')
+        raise Exception('First two inputs must be the same size')
+    
+    # Check that values of the second input are within the feasible range  
+    if max([abs(x) for x in terrain_angle]) > 75:    
+        raise Exception('All elements of the second input must be between -75 degrees and +75 degrees')
+        
+    # Check that the third input is a dict
+    if type(rover) != dict:
+        raise Exception('Third input must be a dict')
+        
+    # Check that the fourth input is a dict
+    if type(planet) != dict:
+        raise Exception('Fourth input must be a dict')
+        
+    # Check that the fifth input is a scalar and positive
+    if (type(Crr) != int) and (type(Crr) != float):
+        raise Exception('Fifth input must be a scalar')
     if Crr <= 0:
-        raise Exception("The coefficient of rolling resistance must be positive")
-    if (type(rover) != dict) or (type(planet) != dict):
-        raise Exception('Inputs for rover and planet must be dicts')
-
-    rov_mass = get_mass(rover)
-    ga = planet['g']
-    Frr = []
-    j = 0
+        raise Exception('Fifth input must be a positive number')
+        
+    # Main Code
+    m = get_mass(rover)
+    g = planet['g']
+    r = rover['wheel_assembly']['wheel']['radius']
     Ng = get_gear_ratio(rover['wheel_assembly']['speed_reducer'])
     
-    for i in terrain_angle:
-        w = omega[j] / Ng
-        F_n = rov_mass * ga * np.cos(np.radians(i)) * Crr
-        v_rov = rover['wheel_assembly']['wheel']['radius'] * w
-        Frr.append(math.erf(40 * v_rov) * -1*F_n)
-        j += 1
-
+    v_rover = r*omega/Ng
+    
+    Fn = np.array([m*g*math.cos(math.radians(x)) for x in terrain_angle],dtype=float) # normal force
+    Frr_simple = -Crr*Fn # simple rolling resistance
+    
+    Frr = np.array([math.erf(40*v_rover[ii]) * Frr_simple[ii] for ii in range(len(v_rover))], dtype = float)
+    
     return Frr
 
 
+def F_gravity(terrain_angle, rover, planet):
+    """
+    Inputs:  terrain_angle:  numpy array   Array of terrain angles [deg]
+                     rover:  dict          Data structure specifying rover 
+                                            parameters
+                    planet:  dict          Data dictionary specifying planetary 
+                                            parameters
+    
+    Outputs:           Fgt:  numpy array   Array of forces [N]
+    """
+    
+    # Check that the first input is a scalar or a vector
+    if (type(terrain_angle) != int) and (type(terrain_angle) != float) and (not isinstance(terrain_angle, np.ndarray)):
+        raise Exception('First input must be a scalar or a vector. If input is a vector, it should be defined as a numpy array.')
+    elif not isinstance(terrain_angle, np.ndarray):
+        terrain_angle = np.array([terrain_angle],dtype=float) # make the scalar a numpy array
+    elif len(np.shape(terrain_angle)) != 1:
+        raise Exception('First input must be a scalar or a vector. Matrices are not allowed.')
+        
+    # Check that values of the first input are within the feasible range  
+    if max([abs(x) for x in terrain_angle]) > 75:    
+        raise Exception('All elements of the first input must be between -75 degrees and +75 degrees')
+
+    # Check that the second input is a dict
+    if type(rover) != dict:
+        raise Exception('Second input must be a dict')
+    
+    # Check that the third input is a dict
+    if type(planet) != dict:
+        raise Exception('Third input must be a dict')
+        
+    # Main Code
+    m = get_mass(rover)
+    g = planet['g']
+    
+    Fgt = np.array([-m*g*math.sin(math.radians(x)) for x in terrain_angle], dtype = float)
+        
+    return Fgt
+
 
 def F_drive(omega, rover):
+    """
+    Inputs:  omega:  numpy array   Array of motor shaft speeds [rad/s]
+             rover:  dict          Data dictionary specifying rover parameters
+    
+    Outputs:    Fd:  numpy array   Array of drive forces [N]
+    """
+    
+    # Check that the first input is a scalar or a vector
+    if (type(omega) != int) and (type(omega) != float) and (not isinstance(omega, np.ndarray)):
+        raise Exception('First input must be a scalar or a vector. If input is a vector, it should be defined as a numpy array.')
+    elif not isinstance(omega, np.ndarray):
+        omega = np.array([omega],dtype=float) # make the scalar a numpy array
+    elif len(np.shape(omega)) != 1:
+        raise Exception('First input must be a scalar or a vector. Matrices are not allowed.')
 
-  if not isinstance(omega, np.ndarray) and not np.isscalar(omega):
-      raise Exception('The shaft speed must be a vector or scalar')
-
-  if not isinstance(rover, dict):
-      raise Exception('Rover input type must be a dict')
-
-
-  mot = rover['wheel_assembly']['motor']
-  Fd = []
-  T_in = tau_dcmotor(omega, mot)
-
-  Ng = get_gear_ratio(rover['wheel_assembly']['speed_reducer'])
-
-  T_out = T_in
-
-  wheel_rad = rover['wheel_assembly']['wheel']['radius']
-  for i in T_out:
-      Fd += [(6 * i * Ng)/ wheel_rad]
-  return Fd
-
+    # Check that the second input is a dict
+    if type(rover) != dict:
+        raise Exception('Second input must be a dict')
+    
+    # Main code
+    Ng = get_gear_ratio(rover['wheel_assembly']['speed_reducer'])
+    
+    tau = tau_dcmotor(omega, rover['wheel_assembly']['motor'])
+    tau_out = tau*Ng
+    
+    r = rover['wheel_assembly']['wheel']['radius']
+    
+    # Drive force for one wheel
+    Fd_wheel = tau_out/r 
+    
+    # Drive force for all six wheels
+    Fd = 6*Fd_wheel
+    
+    return Fd
 
 
 def F_net(omega, terrain_angle, rover, planet, Crr):
-
-    # Exceptions
-    if not np.isscalar(omega) and not isinstance(omega, np.ndarray):
-        raise Exception('Motor shaft speed must be a scalar or a vector')
-
-    if not np.isscalar(terrain_angle) and not isinstance(terrain_angle, np.ndarray):
-        raise Exception('The terrain angle must be a scalar or a vector')
-
-    for i in terrain_angle:
-        if i < -75 or i > 75:
-            raise Exception('All terrain angles must be between -75 and +75 degrees')
-
+    """
+    Inputs:           omega:  list     Motor shaft speed [rad/s]
+              terrain_angle:  list     Array of terrain angles [deg]
+                      rover:  dict     Data structure specifying rover 
+                                      parameters
+                     planet:  dict     Data dictionary specifying planetary 
+                                      parameters
+                        Crr:  scalar   Value of rolling resistance coefficient
+                                      [-]
+    
+    Outputs:           Fnet:  list     Array of forces [N]
+    """
+    
+    # Check that the first input is a scalar or a vector
+    if (type(omega) != int) and (type(omega) != float) and (not isinstance(omega, np.ndarray)):
+    # if (not isinstance(omega, np.ndarray)):
+        raise Exception('First input must be a scalar or a vector. If input is a vector, it should be defined as a numpy array.')
+    elif not isinstance(omega, np.ndarray):
+        omega = np.array([omega],dtype=float) # make the scalar a numpy array
+    elif len(np.shape(omega)) != 1:
+        raise Exception('First input must be a scalar or a vector. Matrices are not allowed.')
+        
+    # Check that the second input is a scalar or a vector
+    if (type(terrain_angle) != int) and (type(terrain_angle) != float) and (not isinstance(terrain_angle, np.ndarray)):
+        raise Exception('Second input must be a scalar or a vector. If input is a vector, it should be defined as a numpy array.')
+    elif not isinstance(terrain_angle, np.ndarray):
+        terrain_angle = np.array([terrain_angle],dtype=float) # make the scalar a numpy array
+    elif len(np.shape(terrain_angle)) != 1:
+        raise Exception('Second input must be a scalar or a vector. Matrices are not allowed.')
+        
+    # Check that the first two inputs are of the same size
     if len(omega) != len(terrain_angle):
-        raise Exception("Omega and the terrain angle should be equivalent lengths")
-
-    if not isinstance(rover, dict) or not isinstance(planet, dict):
-        raise Exception('Rover input must be a dict')
-
-    if not np.isscalar(Crr) or Crr <= 0:
-        raise Exception('This value must be a positive scalar')
-
-    Fg = F_gravity(terrain_angle, rover, planet)
+        raise Exception('First two inputs must be the same size')
+    
+    # Check that values of the second input are within the feasible range  
+    if max([abs(x) for x in terrain_angle]) > 75:    
+        raise Exception('All elements of the second input must be between -75 degrees and +75 degrees')
+        
+    # Check that the third input is a dict
+    if type(rover) != dict:
+        raise Exception('Third input must be a dict')
+        
+    # Check that the fourth input is a dict
+    if type(planet) != dict:
+        raise Exception('Fourth input must be a dict')
+        
+    # Check that the fifth input is a scalar and positive
+    if (type(Crr) != int) and (type(Crr) != float):
+        raise Exception('Fifth input must be a scalar')
+    if Crr <= 0:
+        raise Exception('Fifth input must be a positive number')
+    
+    # Main Code
     Fd = F_drive(omega, rover)
-    Fr = F_rolling(omega, terrain_angle, rover, planet, Crr)
-    Fn = Fg + Fd + Fr
+    Frr = F_rolling(omega, terrain_angle, rover, planet, Crr)
+    Fg = F_gravity(terrain_angle, rover, planet)
+    
+    Fnet = Fd + Frr + Fg # signs are handled in individual functions
+    
+    return Fnet
 
-    return Fn
+
+#%% Hint for students
+omega = 1 # rad/s (motor shaft speed)
+angle = 5 # degrees (terrain angle)
+Crr = 0.1
+
+from define_rovers import define_rover_1
+rover, planet = define_rover_1() # this is what is given in Appendix A and B
+
+Fd = F_drive(omega, rover)
+Frr = F_rolling(omega, angle, rover, planet, Crr)
+Fg = F_gravity(angle, rover, planet)
+Fnet = F_net(omega, angle, rover, planet, Crr)
+
+
+################################### Phase 2 ###################################
+def experiment1():
+    
+    experiment = {'time_range' : np.array([0,20000]),
+                  'initial_conditions' : np.array([0.3025,0]),
+                  'alpha_dist' : np.array([0, 100, 200, 300, 400, 500, 600, \
+                                           700, 800, 900, 1000]),
+                  'alpha_deg' : np.array([11.509, 2.032, 7.182, 2.478, \
+                                        5.511, 10.981, 5.601, -0.184, \
+                                        0.714, 4.151, 4.042]),
+                  'Crr' : 0.1}
+    
+    
+    # Below are default values for example only:
+    end_event = {'max_distance' : 50,
+                 'max_time' : 5000,
+                 'min_velocity' : 0.01}
+    
+    return experiment, end_event
+
+
+
+
+def end_of_mission_event(end_event):
+    """
+    Defines an event that terminates the mission simulation. Mission is over
+    when rover reaches a certain distance, has moved for a maximum simulation 
+    time or has reached a minimum velocity.            
+    """
+    
+    mission_distance = end_event['max_distance']
+    mission_max_time = end_event['max_time']
+    mission_min_velocity = end_event['min_velocity']
+    
+    # Assume that y[1] is the distance traveled
+    distance_left = lambda t,y: mission_distance - y[1]
+    distance_left.terminal = True
+    
+    time_left = lambda t,y: mission_max_time - t
+    time_left.terminal = True
+    
+    velocity_threshold = lambda t,y: y[0] - mission_min_velocity;
+    velocity_threshold.terminal = True
+    velocity_threshold.direction = -1
+    
+    # terminal indicates whether any of the conditions can lead to the
+    # termination of the ODE solver. In this case all conditions can terminate
+    # the simulation independently.
+    
+    # direction indicates whether the direction along which the different
+    # conditions is reached matters or does not matter. In this case, only
+    # the direction in which the velocity treshold is arrived at matters
+    # (negative)
+    
+    events = [distance_left, time_left, velocity_threshold]
+    
+    return events
