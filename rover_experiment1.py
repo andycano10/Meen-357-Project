@@ -26,3 +26,4 @@ ax3.set_xlabel('Power [W]')
 ax1.set_ylabel('Time [s]')
 
 plt.tight_layout()
+plt.show()
