@@ -11,42 +11,6 @@ from statistics import mean
 from scipy.interpolate import *
 from scipy.integrate import *
 
-wheel = {
-    'radius': 0.3,
-    'mass': 1.0 }
-
-speed_reducer = {
-    'type': 'reverted',
-    'diam_pinion': 0.04,
-    'diam_gear': 0.07,
-    'mass': 1.5}
-
-motor = {
-    'torque_stall': 170,
-    'torque_noload': 0,
-    'speed_noload': 3.80,
-    'mass': 5.0,
-    'effcy_tau':np.array([0, 10, 20, 40, 70, 165]),
-    'effcy': np.array([0, 0.55, 0.75, 0.71, 0.50, 0.05])}
-
-chassis = {'mass': 659}
-science_payload = {'mass': 75}
-power_subsys = {'mass': 90}
-
-planet = {'g': 3.72}
-
-wheel_assembly = {
-    'wheel': wheel,
-    'speed_reducer': speed_reducer,
-    'motor': motor}
-
-rover = {
-    'wheel_assembly': wheel_assembly,
-    'chassis': chassis,
-    'science_payload': science_payload,
-    'power_subsys': power_subsys,
-    'telemetry': None}
-
 def get_mass(rover):
     """
     Inputs:  rover:  dict      Data structure containing rover parameters
@@ -645,8 +609,10 @@ def simulate_rover(rover, planet, experiment, end_event):
     
     
     # Create rover dynamics function
-    dyn_func = lambda t,y: rover_dynamics(t, y, rover, planet, experiment)     
-    timespan = experiment['time_range']    
+    dyn_func = lambda t,y: rover_dynamics(t, y, rover, planet, experiment) 
+    
+    timespan = experiment['time_range'] 
+    
     y_0 = experiment['initial_conditions'].ravel() 
     
     event = end_of_mission_event(end_event) 
@@ -666,7 +632,7 @@ def simulate_rover(rover, planet, experiment, end_event):
     energy_per_dist = battenergy(solut.t,solut.y[0,:],rover)/solut.y[1,-1]
 
     # Update telemetry key to include new data
-    telemetry = {'Time':time,
+    telemetry = {'time':time,
                  'completion_time':completion_t,
                  'velocity':vel,
                  'position':pos,

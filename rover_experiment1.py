@@ -1,11 +1,13 @@
 import subfunctions as sb
 import matplotlib.pyplot as plt
 
-sb.end_event['max_distance'] = 1000
-sb.end_event['max_time'] = 10000
-sb.end_event['min_velocity'] = 0.01
 
-rover = sb.simulate_rover(sb.rover, sb.planet, sb.experiment, sb.end_event)
+experiment,end_event = sb.experiment1()
+end_event['max_distance'] = 1000
+end_event['max_time'] = 10000
+end_event['min_velocity'] = 0.01
+
+rover = sb.simulate_rover(sb.rover, sb.planet, experiment, end_event)
 fig, (ax1, ax2, ax3) = plt.subplots(3, figsize=(6,8))
 fig.suptitle('Rover Trajectory Graphs')
 
