@@ -4,10 +4,10 @@ from scipy.interpolate import *
 from scipy.integrate import *
 from statistics import mean
 
-experiment,end_event = sb.experiment1()
-end_event['max_distance'] = 1000
-end_event['max_time'] = 10000
-end_event['min_velocity'] = 0.01
+experiment, end_event = sb.experiment1()
+end_event["max_distance"] = 1000
+end_event["max_time"] = 10000
+end_event["min_velocity"] = 0.01
 
 rover = sb.simulate_rover(sb.rover, sb.planet, experiment, end_event)
 fig, (ax1, ax2, ax3) = plt.subplots(3, figsize=(6,8))
@@ -31,3 +31,4 @@ ax1.set_ylabel('Time [s]')
 
 plt.tight_layout()
 plt.show()
+
