@@ -1,6 +1,8 @@
 import subfunctions as sb
 import matplotlib.pyplot as plt
-
+from scipy.interpolate import *
+from scipy.integrate import *
+from statistics import mean
 
 experiment,end_event = sb.experiment1()
 end_event['max_distance'] = 1000
