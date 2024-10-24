@@ -17,22 +17,16 @@ w = []
 for i in range(len(w_values)):
     w.append(w_values[i]) 
 omega = np.array(w)
+wout = omega/r
 
-wout = []
-for i in range(len(omega)):
-    new_val = omega[i]/r
-    wout.append(new_val)
     
 tau = tau_dcmotor(omega, motor)
 t = np.array(tau)
-tau_out = []
-for i in range(len(t)):
-    new = t[i]*r
-    tau_out.append(new)
+tau_out = t*r
 
 
 
-P = tau*omega
+P = tau_out*wout
 
 fig, (ax1, ax2, ax3) = plt.subplots(3, figsize=(6,8))
 fig.suptitle('Graphs for the Speed Reducer')
@@ -40,14 +34,13 @@ fig.suptitle('Graphs for the Speed Reducer')
 #plot 1: w_out (omega/Ng) speed  vs. t_out =t/Ng
 ax1.plot(tau_out, wout)
 ax1.set_title('Speed vs Torque')
-ax1.set_title('Speed vs Torque')
 ax1.set_xlabel('Reducer Torque [Nm]')
 ax1.set_ylabel('Reducer Speed [rad/s]')
 
 #GRAPH 2:t_out vs. Pout [Nm] (use torque on the x-axis)
-ax2.plot(tau_dcmotor(omega, motor),P)
+ax2.plot(tau_out,P)
 ax2.set_title('Power vs Torque')
-ax2.set_xlabel('Reduce Shaft Torque [Nm]')
+ax2.set_xlabel('Reducer Torque [Nm]')
 ax2.set_ylabel('Reducer Power [W]')
 
 
@@ -57,4 +50,19 @@ ax3.set_title('Power vs Speed')
 ax3.set_xlabel('Reducer Speed [rad/s]')
 ax3.set_ylabel('Reducer Power [W]')
 
+<<<<<<< Updated upstream
 plt.tight_layout()
+=======
+plt.tight_layout()
+plt.show()
+
+plt.tight_layout()
+
+
+Pmax_index = np.argmax(P)
+speed = wout[50]
+print(max(P), Pmax_index, speed)
+
+
+
+>>>>>>> Stashed changes
